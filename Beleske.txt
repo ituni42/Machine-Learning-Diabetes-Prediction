@@ -1,0 +1,166 @@
+#KOD GDE IMA KORISNIH STVARI, STVARI KOJE MI NE TREBAJU, DRUGACIJE VERZIJE STVARI KOJE SAM VEC ODRADIO
+
+import csv
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn
+#StringToNumber
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
+
+dataset = pd.read_csv('diabetes_prediction_dataset.csv')
+#Provera koliko ima "Other" vrednosti za Gender
+print(dataset['gender'].value_counts()['Other'])
+#Posto ima samo 18, mozemo ih slobodno ukloniti tako da ostane samo Male,Female
+dataset = dataset.drop(dataset[dataset.gender == 'Other'].index)
+
+#dataset.to_csv('diabetes_prediction_datasetMF.csv', index=False)
+
+#Provera da li su svi redovi sa "Others" uklonjeni:
+#ds = pd.read_csv('diabetes_prediction_datasedMF.csv')
+#print(df['gender'].value_counts()['Others'])
+
+#Provera da li su podaci balansirani
+print('Broj ljudi koji nema dijabetes:', dataset['diabetes'].value_counts()[0])
+print('Broj ljudi koji  ima dijabetes:', dataset['diabetes'].value_counts()[1])
+
+dataset = pd.read_csv('diabetes_prediction_datasetMF.csv')
+#Zakljucak je da podaci nisu balansirani
+
+#Provera broja celija bez vrednosti:
+x = print("Broj Celija bez vrednosti: ", dataset.isnull().sum().sum())
+
+#drugi nacin
+#missing_vals = ["NA", "", None, np.NaN,"Female"]
+#missing = ds.isin(missing_vals)
+#print(ds.isin(missing_vals).sum())
+print(dataset.shape)
+def plot_boxplot(df,ft):
+    df.boxplot(column=[ft])
+    plt.grid(False)
+    plt.show()
+
+#Potraga za Anomalijama
+plot_boxplot(dataset, "age")
+plot_boxplot(dataset, "bmi")
+plot_boxplot(dataset, "HbA1c_level")
+plot_boxplot(dataset, "blood_glucose_level")
+
+#Remove Outliers
+def outliers(df,ft):
+    Q1 = df[ft].quantile(0.25)
+    Q3 = df[ft].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    ls = df.index[(df[ft] < lower_bound) | (df[ft] > upper_bound)]
+
+    return ls
+
+index_list = []
+for feature in ['age','bmi','HbA1c_level',"blood_glucose_level"]:
+    index_list.extend(outliers(dataset,feature))
+
+print(index_list)
+
+def remove(df, ls):
+    ls = sorted(set(ls))
+    df = df.drop(ls)
+    return df
+
+df_cleaned = remove(dataset,index_list)
+print(df_cleaned.shape)
+plot_boxplot(df_cleaned, "age")
+plot_boxplot(df_cleaned, "bmi")
+plot_boxplot(df_cleaned, "HbA1c_level")
+plot_boxplot(df_cleaned, "blood_glucose_level")
+
+print(df_cleaned.dtypes)
+
+categorical_features = ["gender","smoking_history"]
+
+
+#dataset.to_csv('diabetes_prediction_datasetMFOutliers.csv', index=False)
+#data_filtered = pd.read_csv('diabetes_prediction_datasetMFOutliers.csv', usecols=['smoking_history'])['smoking_history']
+
+# print(set(data_filtered))
+#
+# pd.set_option('display.max_columns', None)
+# print(dataset.describe(include="all"))
+#
+# dataset = pd.read_csv('diabetes_prediction_dataset.csv')
+# print(dataset)
+# print(dataset.groupby(['smoking_history']).size())
+# print(dataset.groupby(['diabetes']).size())
+#
+# dataset = pd.read_csv('diabetes_prediction_dataset.csv')
+# #N/ima dijabetes
+# dataset.groupby(['diabetes']).describe()
+#
+# smoking_diabetes_counts = dataset.groupby('smoking_history')['diabetes'].sum().reset_index()
+#
+# print(smoking_diabetes_counts)
+# print('Nema Dijabetes: ', dataset['diabetes'].value_counts()[0])
+# print('Ima Dijabetes: ', dataset['diabetes'].value_counts()[1])
+#
+# plt.figure(figsize=(10, 6))
+# plt.bar(smoking_diabetes_counts['smoking_history'], smoking_diabetes_counts['diabetes'])
+# plt.xlabel('Smoking History')
+# plt.ylabel('Count of Individuals with Diabetes')
+# plt.title('Count of Individuals with Diabetes by Smoking History')
+# plt.show()
+
+
+
+#k najblizih suseda
+#implementirati metodu za pronalazenje K (metoda lakta)
+#iskoristiti metrike acnost preciznost i bar dve nove metrike
+#eroc skup podataka nacrtati svakako mrnjau brateuuuuu
+#algoritam za odredjivanje koji su atributi najbitniji.
+
+
+
+#plt.show()
+# for vrednost in dataset["smoking_history"]:
+#         print(dataset['smoking_history'].value_counts()[vrednost])
+#dataset['diabetes'].value_counts()[0])
+
+#print(dataset.groupby(['smoking_history']).size())
+#dataset = dataset[dataset.smoking_history != 0]
+#print(dataset.columns)
+dataset.select_dtypes(include="number").columns
+#pd.set_option('display.max_columns', None)
+
+
+
+
+
+for i in ['gender', 'age', 'hypertension', 'heart_disease', 'smoking_history', 'bmi', 'HbA1c_level', 'blood_glucose_level']:
+    sns.catplot(data=X_res, x=i, hue="diabetes", kind="count", height=6, aspect=2)
+    plt.title(f'Count plot for {i}')
+    plt.show()
+
+
+
+dt_params = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [3, 5, 7],
+    'min_samples_split': [2, 5, 10]
+}
+
+#Algoritam za nalazenje K:
+k_values = list(range(1, 10))
+
+k_scores = {}
+
+for k in k_values:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    scores = cross_val_score(knn, X_train, y_train, cv=5)
+    k_scores[k] = np.mean(scores)
+best_k = max(k_scores, key=k_scores.get)
+best_score = k_scores[best_k]
