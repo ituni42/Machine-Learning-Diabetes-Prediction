@@ -56,36 +56,20 @@ Installation & Execution
       
 git clone https://github.com/ituni42/Machine-Learning-Diabetes-Prediction.git
 
-    
-
-IGNORE_WHEN_COPYING_START
-Use code with caution. Sh
-IGNORE_WHEN_COPYING_END
 
 Navigate into the project directory.
-Generated sh
 
       
 cd Machine-Learning-Diabetes-Prediction
 
     
 
-IGNORE_WHEN_COPYING_START
-Use code with caution. Sh
-IGNORE_WHEN_COPYING_END
-
 Install all the necessary libraries.
-Generated sh
 
       
 pip install pandas matplotlib seaborn scikit-learn imblearn
-
     
 
-IGNORE_WHEN_COPYING_START
-
-    Use code with caution. Sh
-    IGNORE_WHEN_COPYING_END
 
     Run the Python scripts in the order described in the workflow table above to see the results.
 
